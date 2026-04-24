@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="ConferenSpace.API/ConferenSpace.API.csproj" />
+  <Project Path="ConferenSpace.Application/ConferenSpace.Application.csproj" />
+  <Project Path="ConferenSpace.Domain/ConferenSpace.Domain.csproj" />
+  <Project Path="ConferenSpace.Infrastructure/ConferenSpace.Infrastructure.csproj" />
+  <Project Path="ConferenSpace.UI/ConferenSpace.UI.csproj" Id="3ff717e8-4586-4daa-879d-1fd1796e567b" />
+</Solution>

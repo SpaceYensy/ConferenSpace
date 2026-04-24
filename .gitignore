@@ -1,0 +1,88 @@
+# Archivos de compilación y objetos
+bin/
+obj/
+*.o
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+
+# IDE y editores
+.vs/
+.vscode/
+*.sln.iml
+*.user
+*.userprefs
+*.DotSettings
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Archivos de usuario
+*.suo
+*.sln.docstates
+*.VC.db
+*.VC.VC.opendb
+
+# Archivos de configuración local
+appsettings.local.json
+appsettings.Production.json
+
+# Base de datos local
+*.mdf
+*.ldf
+*.db-journal
+*.db
+
+# NuGet
+.nuget/
+*.nupkg
+*.snupkg
+packages/
+.nuget/packages/
+
+# Directorio de publish
+publish/
+PublishProfiles/
+
+# Archivos de log
+*.log
+logs/
+
+# Archivos temporales
+*.tmp
+*.temp
+~$*
+
+# Cache
+.cache/
+.venv/
+venv/
+
+# Archivos de video/audio de prueba
+*.mp4
+*.avi
+*.mov
+*.wav
+*.mp3
+
+# Archivos de construcción específicos del proyecto
+.vscode/settings.json
+.vscode/extensions.json
+
+# Entity Framework
+Migrations/
+
+# Información de depuración
+.debug/
+
+# Archivos específicos del SO
+Thumbs.db
+Desktop.ini
+.AppleDouble
+.LSOverride
