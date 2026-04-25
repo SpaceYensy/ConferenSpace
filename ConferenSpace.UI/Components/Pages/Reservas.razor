@@ -1,0 +1,200 @@
+﻿@page "/reservas"
+
+<PageTitle>Gestión de Reservas - ConferenSpace</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-calendar-check text-info"></i> Gestión de Reservas</h2>
+    <a href="/reservas/crear" class="btn btn-info text-white">
+        <i class="bi bi-plus-lg"></i> Nueva Reserva
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-funnel"></i></span>
+            <select class="form-select" @bind="filtroEstado">
+                <option value="Todas">Todas</option>
+                <option value="Confirmada">Confirmadas</option>
+                <option value="Cancelada">Canceladas</option>
+                <option value="Completada">Completadas</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <input type="date" class="form-control" @bind="filtroFecha" />
+    </div>
+    <div class="col-md-4">
+        <input type="text" class="form-control" placeholder="Buscar por propósito..." @bind="filtroTexto" @bind:event="oninput" />
+    </div>
+</div>
+
+@if (cargando)
+{
+    <div class="text-center my-5"><div class="spinner-border text-info"></div></div>
+}
+else if (!reservas.Any())
+{
+    <div class="alert alert-info text-center">
+        <i class="bi bi-calendar-x"></i> No hay reservas registradas.
+        <a href="/reservas/crear" class="alert-link">Crear la primera</a>
+    </div>
+}
+else
+{
+    var filtradas = reservas.AsEnumerable();
+
+    if (filtroEstado != "Todas")
+        filtradas = filtradas.Where(r => r.Estado == filtroEstado);
+
+    if (filtroFecha.HasValue)
+        filtradas = filtradas.Where(r => r.Fecha.Date == filtroFecha.Value.Date);
+
+    if (!string.IsNullOrWhiteSpace(filtroTexto))
+        filtradas = filtradas.Where(r => r.Proposito.Contains(filtroTexto, StringComparison.OrdinalIgnoreCase));
+
+    var lista = filtradas.OrderByDescending(r => r.Fecha).ThenBy(r => r.HoraInicio).ToList();
+
+    <div class="table-responsive shadow rounded">
+        <table class="table table-hover mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Salón</th>
+                    <th>Solicitante</th>
+                    <th>Fecha</th>
+                    <th>Horario</th>
+                    <th>Asistentes</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in lista)
+                {
+                    var estadoClass = r.Estado switch
+                    {
+                        "Confirmada" => "bg-success",
+                        "Cancelada" => "bg-danger",
+                        "Completada" => "bg-secondary",
+                        _ => "bg-warning"
+                    };
+
+                    <tr>
+                        <td><span class="badge bg-dark">#@r.Id</span></td>
+                        <td>@(r.Salon?.Nombre ?? $"Salón #{r.SalonId}")</td>
+                        <td>@(r.Solicitante?.NombreCompleto ?? $"Sol. #{r.SolicitanteId}")</td>
+                        <td>@r.Fecha.ToString("dd/MM/yyyy")</td>
+                        <td>@r.HoraInicio.ToString(@"hh\:mm") - @r.HoraFin.ToString(@"hh\:mm")</td>
+                        <td>@r.CantidadAsistentes</td>
+                        <td><span class="badge @estadoClass">@r.Estado</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info me-1" @onclick="() => VerDetalle(r)">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            @if (r.Estado == "Confirmada")
+                            {
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => CancelarReserva(r.Id)">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (reservaSeleccionada != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">Reserva #@reservaSeleccionada.Id</h5>
+                    <button type="button" class="btn-close" @onclick="() => reservaSeleccionada = null"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Salón:</strong> @(reservaSeleccionada.Salon?.Nombre ?? "N/A")</p>
+                            <p><strong>Ubicación:</strong> @(reservaSeleccionada.Salon?.Ubicacion ?? "N/A")</p>
+                            <p><strong>Solicitante:</strong> @(reservaSeleccionada.Solicitante?.NombreCompleto ?? "N/A")</p>
+                            <p><strong>Correo:</strong> @(reservaSeleccionada.Solicitante?.Correo ?? "N/A")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Fecha:</strong> @reservaSeleccionada.Fecha.ToString("dd/MM/yyyy")</p>
+                            <p><strong>Horario:</strong> @reservaSeleccionada.HoraInicio.ToString(@"hh\:mm") - @reservaSeleccionada.HoraFin.ToString(@"hh\:mm")</p>
+                            <p><strong>Asistentes:</strong> @reservaSeleccionada.CantidadAsistentes</p>
+                            <p><strong>Estado:</strong> @reservaSeleccionada.Estado</p>
+                        </div>
+                    </div>
+                    <p><strong>Propósito:</strong> @reservaSeleccionada.Proposito</p>
+                    @if (!string.IsNullOrEmpty(reservaSeleccionada.Notas))
+                    {
+                        <p><strong>Notas:</strong> @reservaSeleccionada.Notas</p>
+                    }
+                    @if (reservaSeleccionada.Recursos.Any())
+                    {
+                        <h6>Recursos Solicitados:</h6>
+                        <ul>
+                            @foreach (var rec in reservaSeleccionada.Recursos)
+                            {
+                                <li>@(rec.Recurso?.Nombre ?? $"Recurso #{rec.RecursoId}") - Cantidad: @rec.CantidadSolicitada</li>
+                            }
+                        </ul>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="() => reservaSeleccionada = null">Cerrar</button>
+                    @if (reservaSeleccionada.Estado == "Confirmada")
+                    {
+                        <button class="btn btn-danger" @onclick="() => CancelarReservaDesdeModal()">
+                            <i class="bi bi-x-circle"></i> Cancelar Reserva
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Reserva> reservas = new();
+    private Reserva? reservaSeleccionada;
+    private bool cargando = true;
+    private string filtroEstado = "Todas";
+    private DateTime? filtroFecha;
+    private string filtroTexto = "";
+
+    protected override async Task OnInitializedAsync() => await CargarReservas();
+
+    private async Task CargarReservas()
+    {
+        cargando = true;
+        try { reservas = await Api.GetReservasAsync(); } catch { }
+        cargando = false;
+    }
+
+    private void VerDetalle(Reserva r) => reservaSeleccionada = r;
+
+    private async Task CancelarReserva(int id)
+    {
+        try
+        {
+            await Api.CancelarReservaAsync(id);
+            await CargarReservas();
+        }
+        catch { }
+    }
+
+    private async Task CancelarReservaDesdeModal()
+    {
+        if (reservaSeleccionada != null)
+        {
+            await CancelarReserva(reservaSeleccionada.Id);
+            reservaSeleccionada = null;
+        }
+    }
+}

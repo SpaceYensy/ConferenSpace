@@ -6,9 +6,6 @@ using ConferenSpace.Infrastructure.Contracts;
 
 namespace ConferenSpace.Application.Services;
 
-/// <summary>
-/// Servicio de lógica de negocios para la gestión de recursos.
-/// </summary>
 public class RecursoService : IRecursoService
 {
     private readonly IRecursoRepository _recursoRepository;

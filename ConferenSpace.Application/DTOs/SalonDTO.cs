@@ -1,8 +1,5 @@
 namespace ConferenSpace.Application.DTOs;
 
-/// <summary>
-/// Data Transfer Object para la entidad Salon.
-/// </summary>
 public class SalonDTO
 {
     public int Id { get; set; }

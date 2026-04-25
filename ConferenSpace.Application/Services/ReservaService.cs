@@ -6,10 +6,6 @@ using ConferenSpace.Infrastructure.Contracts;
 
 namespace ConferenSpace.Application.Services;
 
-/// <summary>
-/// Servicio de lógica de negocios para la gestión de reservas.
-/// Este es el núcleo del sistema, encargado de validar disponibilidad y gestionar conflictos.
-/// </summary>
 public class ReservaService : IReservaService
 {
     private readonly IReservaRepository _reservaRepository;
@@ -46,25 +42,20 @@ public class ReservaService : IReservaService
 
     public async Task<ReservaDTO> CrearAsync(ReservaCrearDTO reservaCrearDTO)
     {
-        // Validar que el salón existe
         var salon = await _salonRepository.ObtenerPorIdAsync(reservaCrearDTO.SalonId);
         if (salon == null || !salon.EstaActivo)
             throw new ArgumentException("El salón seleccionado no existe o está fuera de servicio.");
 
-        // Validar que el solicitante existe
         var solicitante = await _solicitanteRepository.ObtenerPorIdAsync(reservaCrearDTO.SolicitanteId);
         if (solicitante == null || !solicitante.EstaActivo)
             throw new ArgumentException("El solicitante seleccionado no existe o está inactivo.");
 
-        // Validar que la cantidad de asistentes no excede la capacidad
         if (reservaCrearDTO.CantidadAsistentes > salon.CapacidadMaxima)
             throw new InvalidOperationException($"La cantidad de asistentes ({reservaCrearDTO.CantidadAsistentes}) excede la capacidad del salón ({salon.CapacidadMaxima}).");
 
-        // Validar que la hora de fin es mayor a la hora de inicio
         if (reservaCrearDTO.HoraFin <= reservaCrearDTO.HoraInicio)
             throw new InvalidOperationException("La hora de fin debe ser mayor a la hora de inicio.");
 
-        // Validar disponibilidad del salón
         if (!await ValidarDisponibilidadAsync(
             reservaCrearDTO.SalonId,
             reservaCrearDTO.Fecha,
@@ -74,7 +65,6 @@ public class ReservaService : IReservaService
             throw new InvalidOperationException("El salón no está disponible en el horario solicitado.");
         }
 
-        // Validar disponibilidad de recursos
         if (reservaCrearDTO.Recursos.Any())
         {
             foreach (var recursoSolicitado in reservaCrearDTO.Recursos)
@@ -95,7 +85,6 @@ public class ReservaService : IReservaService
             }
         }
 
-        // Crear la reserva
         var reserva = new Reserva
         {
             SolicitanteId = reservaCrearDTO.SolicitanteId,
@@ -110,7 +99,6 @@ public class ReservaService : IReservaService
             FechaCreacion = DateTime.UtcNow
         };
 
-        // Agregar recursos a la reserva
         foreach (var recursoSolicitado in reservaCrearDTO.Recursos)
         {
             reserva.ReservaRecursos.Add(new ReservaRecurso
@@ -133,7 +121,6 @@ public class ReservaService : IReservaService
         if (reserva.Estado == EstadoReserva.Cancelada)
             throw new InvalidOperationException("No se puede modificar una reserva cancelada.");
 
-        // Validar disponibilidad con los nuevos datos (excluyendo la reserva actual)
         var reservasDelSalon = await _reservaRepository.ObtenerPorSalonYFechaAsync(
             reservaCrearDTO.SalonId, reservaCrearDTO.Fecha);
 
@@ -152,7 +139,6 @@ public class ReservaService : IReservaService
         reserva.Notas = reservaCrearDTO.Notas;
         reserva.FechaModificacion = DateTime.UtcNow;
 
-        // Actualizar recursos
         reserva.ReservaRecursos.Clear();
         foreach (var recursoSolicitado in reservaCrearDTO.Recursos)
         {
@@ -208,7 +194,6 @@ public class ReservaService : IReservaService
 
             if (!reservasConfirmadas.Any())
             {
-                // El día completo está disponible
                 disponibilidades.Add(new DisponibilidadDTO
                 {
                     SalonId = salonId,
@@ -220,7 +205,6 @@ public class ReservaService : IReservaService
             }
             else
             {
-                // Agregar bloques disponibles entre reservas
                 var horaActual = TimeSpan.Zero;
 
                 foreach (var reserva in reservasConfirmadas)
@@ -240,7 +224,6 @@ public class ReservaService : IReservaService
                     horaActual = reserva.HoraFin;
                 }
 
-                // Agregar el bloque final del día si queda disponible
                 if (horaActual < TimeSpan.FromHours(24))
                 {
                     disponibilidades.Add(new DisponibilidadDTO
@@ -266,7 +249,6 @@ public class ReservaService : IReservaService
         if (salon == null || !salon.EstaActivo)
             return false;
 
-        // Verificar conflictos de reserva con el salón
         var reservasDelSalon = await _reservaRepository.ObtenerPorSalonYFechaAsync(salonId, fecha);
         var hayConflicto = reservasDelSalon.Any(r =>
             r.Estado != EstadoReserva.Cancelada &&
@@ -275,7 +257,6 @@ public class ReservaService : IReservaService
         if (hayConflicto)
             return false;
 
-        // Verificar disponibilidad de recursos si se especifican
         if (recursosRequeridos != null && recursosRequeridos.Any())
         {
             foreach (var (recursoId, cantidadRequerida) in recursosRequeridos)

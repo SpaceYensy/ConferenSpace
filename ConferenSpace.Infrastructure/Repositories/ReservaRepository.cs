@@ -4,10 +4,6 @@ using ConferenSpace.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConferenSpace.Infrastructure.Repositories;
-
-/// <summary>
-/// Repositorio para la entidad Reserva.
-/// </summary>
 public class ReservaRepository : IReservaRepository
 {
     private readonly ConferenSpaceDbContext _context;

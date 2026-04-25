@@ -1,0 +1,187 @@
+﻿@page "/solicitantes"
+
+<PageTitle>Gestión de Solicitantes - ConferenSpace</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-people text-success"></i> Gestión de Solicitantes</h2>
+    <button class="btn btn-success" @onclick="AbrirFormularioCrear">
+        <i class="bi bi-plus-lg"></i> Nuevo Solicitante
+    </button>
+</div>
+
+@if (mostrarFormulario)
+{
+    <div class="card mb-4 shadow">
+        <div class="card-header @(editando ? "bg-warning" : "bg-success") text-white">
+            <h5 class="mb-0">@(editando ? "Editar Solicitante" : "Nuevo Solicitante")</h5>
+        </div>
+        <div class="card-body">
+            <EditForm Model="@formModel" OnValidSubmit="@GuardarSolicitante">
+                <DataAnnotationsValidator />
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nombre Completo</label>
+                        <InputText @bind-Value="formModel.NombreCompleto" class="form-control" placeholder="Ej: Juan Pérez" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Correo Electrónico</label>
+                        <InputText @bind-Value="formModel.Correo" class="form-control" placeholder="Ej: juan@empresa.com" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Teléfono</label>
+                        <InputText @bind-Value="formModel.Telefono" class="form-control" placeholder="Ej: 809-555-0100" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Departamento</label>
+                        <InputText @bind-Value="formModel.Departamento" class="form-control" placeholder="Ej: TI" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">No. Identificación</label>
+                        <InputText @bind-Value="formModel.NumeroIdentificacion" class="form-control" placeholder="Ej: 001-1234567-8" />
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn @(editando ? "btn-warning" : "btn-success")">
+                        <i class="bi bi-check-lg"></i> @(editando ? "Actualizar" : "Guardar")
+                    </button>
+                    <button type="button" class="btn btn-secondary ms-2" @onclick="CerrarFormulario">Cancelar</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div class="mb-3">
+    <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="text" class="form-control" placeholder="Buscar por nombre, correo o departamento..." @bind="filtro" @bind:event="oninput" />
+    </div>
+</div>
+
+@if (cargando)
+{
+    <div class="text-center my-5">
+        <div class="spinner-border text-success" role="status"></div>
+    </div>
+}
+else if (!solicitantes.Any())
+{
+    <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle"></i> No hay solicitantes registrados.
+    </div>
+}
+else
+{
+    var filtrados = string.IsNullOrWhiteSpace(filtro)
+        ? solicitantes
+        : solicitantes.Where(s =>
+            (s.NombreCompleto?.Contains(filtro, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (s.Correo?.Contains(filtro, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (s.Departamento?.Contains(filtro, StringComparison.OrdinalIgnoreCase) ?? false)).ToList();
+
+    <div class="table-responsive shadow rounded">
+        <table class="table table-hover mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Departamento</th>
+                    <th>Identificación</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in filtrados)
+                {
+                    <tr class="@(s.EstaActivo ? "" : "table-secondary")">
+                        <td><strong>@s.NombreCompleto</strong></td>
+                        <td>@s.Correo</td>
+                        <td>@s.Telefono</td>
+                        <td><span class="badge bg-secondary">@s.Departamento</span></td>
+                        <td>@s.NumeroIdentificacion</td>
+                        <td>
+                            @if (s.EstaActivo)
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactivo</span>
+                            }
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-warning me-1" @onclick="() => AbrirFormularioEditar(s)">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => EliminarSolicitante(s.Id)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<Solicitante> solicitantes = new();
+    private Solicitante formModel = new();
+    private bool mostrarFormulario;
+    private bool editando;
+    private bool cargando = true;
+    private string filtro = "";
+
+    protected override async Task OnInitializedAsync() => await CargarSolicitantes();
+
+    private async Task CargarSolicitantes()
+    {
+        cargando = true;
+        try { solicitantes = await Api.GetSolicitantesAsync(); } catch { }
+        cargando = false;
+    }
+
+    private void AbrirFormularioCrear()
+    {
+        formModel = new Solicitante { EstaActivo = true };
+        editando = false;
+        mostrarFormulario = true;
+    }
+
+    private void AbrirFormularioEditar(Solicitante s)
+    {
+        formModel = new Solicitante
+        {
+            Id = s.Id,
+            NombreCompleto = s.NombreCompleto,
+            Correo = s.Correo,
+            Telefono = s.Telefono,
+            Departamento = s.Departamento,
+            NumeroIdentificacion = s.NumeroIdentificacion,
+            EstaActivo = s.EstaActivo
+        };
+        editando = true;
+        mostrarFormulario = true;
+    }
+
+    private async Task GuardarSolicitante()
+    {
+        try
+        {
+            if (editando) await Api.UpdateSolicitanteAsync(formModel.Id, formModel);
+            else await Api.CreateSolicitanteAsync(formModel);
+            mostrarFormulario = false;
+            await CargarSolicitantes();
+        }
+        catch { }
+    }
+
+    private void CerrarFormulario() => mostrarFormulario = false;
+
+    private async Task EliminarSolicitante(int id)
+    {
+        try { await Api.DeleteSolicitanteAsync(id); await CargarSolicitantes(); } catch { }
+    }
+}

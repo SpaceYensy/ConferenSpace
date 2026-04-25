@@ -1,0 +1,148 @@
+﻿@page "/recursos"
+
+<PageTitle>Gestión de Recursos - ConferenSpace</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-box text-warning"></i> Gestión de Recursos</h2>
+    <button class="btn btn-warning" @onclick="AbrirFormularioCrear">
+        <i class="bi bi-plus-lg"></i> Nuevo Recurso
+    </button>
+</div>
+
+@if (mostrarFormulario)
+{
+    <div class="card mb-4 shadow">
+        <div class="card-header @(editando ? "bg-warning" : "bg-success") text-white">
+            <h5 class="mb-0">@(editando ? "Editar Recurso" : "Nuevo Recurso")</h5>
+        </div>
+        <div class="card-body">
+            <EditForm Model="@formModel" OnValidSubmit="@GuardarRecurso">
+                <DataAnnotationsValidator />
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nombre</label>
+                        <InputText @bind-Value="formModel.Nombre" class="form-control" placeholder="Ej: Proyector Portátil" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Descripción</label>
+                        <InputText @bind-Value="formModel.Descripcion" class="form-control" placeholder="Ej: Proyector Epson 3000 lúmenes" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Cantidad Total</label>
+                        <InputNumber @bind-Value="formModel.CantidadTotal" class="form-control" min="1" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Costo Unitario (RD$)</label>
+                        <InputNumber @bind-Value="formModel.CostoUnitario" class="form-control" min="0" />
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn @(editando ? "btn-warning" : "btn-success")">
+                        <i class="bi bi-check-lg"></i> @(editando ? "Actualizar" : "Guardar")
+                    </button>
+                    <button type="button" class="btn btn-secondary ms-2" @onclick="CerrarFormulario">Cancelar</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@if (cargando)
+{
+    <div class="text-center my-5"><div class="spinner-border text-warning"></div></div>
+}
+else if (!recursos.Any())
+{
+    <div class="alert alert-info text-center">No hay recursos registrados.</div>
+}
+else
+{
+    <div class="row">
+        @foreach (var r in recursos)
+        {
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card shadow-sm h-100 @(r.EstaActivo ? "" : "border-danger bg-light")">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-box-fill text-warning"></i> @r.Nombre
+                            @if (!r.EstaActivo)
+                            {
+                                <span class="badge bg-danger">Inactivo</span>
+                            }
+                        </h5>
+                        <p class="card-text mb-1">@r.Descripcion</p>
+                        <p class="card-text mb-1"><strong>Total:</strong> @r.CantidadTotal</p>
+                        <p class="card-text mb-1"><strong>Disponible:</strong> @r.CantidadDisponible</p>
+                        <p class="card-text"><strong>Costo:</strong> RD$ @r.CostoUnitario?.ToString("N2")</p>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-warning" @onclick="() => AbrirFormularioEditar(r)">
+                                <i class="bi bi-pencil"></i> Editar
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => EliminarRecurso(r.Id)">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<Recurso> recursos = new();
+    private Recurso formModel = new();
+    private bool mostrarFormulario;
+    private bool editando;
+    private bool cargando = true;
+
+    protected override async Task OnInitializedAsync() => await CargarRecursos();
+
+    private async Task CargarRecursos()
+    {
+        cargando = true;
+        try { recursos = await Api.GetRecursosAsync(); } catch { }
+        cargando = false;
+    }
+
+    private void AbrirFormularioCrear()
+    {
+        formModel = new Recurso { EstaActivo = true, CantidadTotal = 1 };
+        editando = false;
+        mostrarFormulario = true;
+    }
+
+    private void AbrirFormularioEditar(Recurso r)
+    {
+        formModel = new Recurso
+        {
+            Id = r.Id,
+            Nombre = r.Nombre,
+            Descripcion = r.Descripcion,
+            CantidadTotal = r.CantidadTotal,
+            CostoUnitario = r.CostoUnitario,
+            EstaActivo = r.EstaActivo
+        };
+        editando = true;
+        mostrarFormulario = true;
+    }
+
+    private async Task GuardarRecurso()
+    {
+        try
+        {
+            if (editando) await Api.UpdateRecursoAsync(formModel.Id, formModel);
+            else await Api.CreateRecursoAsync(formModel);
+            mostrarFormulario = false;
+            await CargarRecursos();
+        }
+        catch { }
+    }
+
+    private void CerrarFormulario() => mostrarFormulario = false;
+
+    private async Task EliminarRecurso(int id)
+    {
+        try { await Api.DeleteRecursoAsync(id); await CargarRecursos(); } catch { }
+    }
+}

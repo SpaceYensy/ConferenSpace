@@ -1,7 +1,145 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>ConferenSpace - Inicio</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="text-center mb-5">
+    <h1 class="display-4 fw-bold text-primary">
+        <i class="bi bi-building"></i> ConferenSpace
+    </h1>
+    <p class="lead">Gestor Inteligente de Reservas para Salones de Conferencias</p>
+</div>
 
-Welcome to your new app.
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="card border-primary h-100 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-door-open display-4 text-primary"></i>
+                <h5 class="card-title mt-2">@totalSalones</h5>
+                <p class="card-text text-muted">Salones disponibles</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-success h-100 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-people display-4 text-success"></i>
+                <h5 class="card-title mt-2">@totalSolicitantes</h5>
+                <p class="card-text text-muted">Solicitantes registrados</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-warning h-100 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-box display-4 text-warning"></i>
+                <h5 class="card-title mt-2">@totalRecursos</h5>
+                <p class="card-text text-muted">Recursos disponibles</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-info h-100 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-calendar-check display-4 text-info"></i>
+                <h5 class="card-title mt-2">@totalReservas</h5>
+                <p class="card-text text-muted">Reservas agendadas</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-calendar-event"></i> Próximas Reservas</h5>
+            </div>
+            <div class="card-body">
+                @if (!proximasReservas.Any())
+                {
+                    <p class="text-center text-muted my-4">No hay reservas próximas</p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Salón</th>
+                                    <th>Solicitante</th>
+                                    <th>Fecha</th>
+                                    <th>Horario</th>
+                                    <th>Propósito</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var r in proximasReservas.Take(5))
+                                {
+                                    <tr>
+                                        <td>@(r.Salon?.Nombre ?? $"Salón #{r.SalonId}")</td>
+                                        <td>@(r.Solicitante?.NombreCompleto ?? $"Solicitante #{r.SolicitanteId}")</td>
+                                        <td>@r.Fecha.ToString("dd/MM/yyyy")</td>
+                                        <td>@r.HoraInicio.ToString(@"hh\:mm") - @r.HoraFin.ToString(@"hh\:mm")</td>
+                                        <td>@r.Proposito</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Acciones Rápidas</h5>
+            </div>
+            <div class="card-body d-grid gap-2">
+                <a href="/reservas/crear" class="btn btn-primary btn-lg">
+                    <i class="bi bi-calendar-plus"></i> Nueva Reserva
+                </a>
+                <a href="/salones" class="btn btn-outline-primary">
+                    <i class="bi bi-door-open"></i> Gestionar Salones
+                </a>
+                <a href="/solicitantes" class="btn btn-outline-success">
+                    <i class="bi bi-person-plus"></i> Gestionar Solicitantes
+                </a>
+                <a href="/calendario" class="btn btn-outline-info">
+                    <i class="bi bi-calendar-week"></i> Ver Calendario
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private int totalSalones;
+    private int totalSolicitantes;
+    private int totalRecursos;
+    private int totalReservas;
+    private List<Reserva> proximasReservas = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var salones = await Api.GetSalonesAsync();
+            var solicitantes = await Api.GetSolicitantesAsync();
+            var recursos = await Api.GetRecursosAsync();
+            var reservas = await Api.GetReservasAsync();
+
+            totalSalones = salones.Count(s => s.EstaActivo);
+            totalSolicitantes = solicitantes.Count(s => s.EstaActivo);
+            totalRecursos = recursos.Count(r => r.EstaActivo);
+            totalReservas = reservas.Count;
+
+            proximasReservas = reservas
+                .Where(r => r.Fecha >= DateTime.Today)
+                .OrderBy(r => r.Fecha)
+                .ThenBy(r => r.HoraInicio)
+                .ToList();
+        }
+        catch { }
+    }
+}

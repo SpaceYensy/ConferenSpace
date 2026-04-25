@@ -2,9 +2,6 @@ using ConferenSpace.Domain.Entities;
 
 namespace ConferenSpace.Infrastructure.Contracts;
 
-/// <summary>
-/// Contrato del repositorio para la entidad Reserva.
-/// </summary>
 public interface IReservaRepository
 {
     Task<IEnumerable<Reserva>> ObtenerTodosAsync();

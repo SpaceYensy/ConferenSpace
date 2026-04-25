@@ -17,9 +17,6 @@ public class ReservasController : ControllerBase
         _logger = logger;
     }
 
-    /// <summary>
-    /// Obtiene todas las reservas registradas.
-    /// </summary>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ReservaDTO>>> ObtenerTodas()
     {
@@ -27,9 +24,6 @@ public class ReservasController : ControllerBase
         return Ok(reservas);
     }
 
-    /// <summary>
-    /// Obtiene una reserva específica por su ID.
-    /// </summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<ReservaDTO>> ObtenerPorId(int id)
     {
@@ -40,9 +34,6 @@ public class ReservasController : ControllerBase
         return Ok(reserva);
     }
 
-    /// <summary>
-    /// Crea una nueva reserva con validación automática de disponibilidad.
-    /// </summary>
     [HttpPost]
     public async Task<ActionResult<ReservaDTO>> Crear([FromBody] ReservaCrearDTO reservaCrearDTO)
     {
@@ -66,9 +57,6 @@ public class ReservasController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Actualiza una reserva existente.
-    /// </summary>
     [HttpPut("{id}")]
     public async Task<ActionResult<ReservaDTO>> Actualizar(int id, [FromBody] ReservaCrearDTO reservaCrearDTO)
     {
@@ -92,9 +80,6 @@ public class ReservasController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Cancela una reserva existente.
-    /// </summary>
     [HttpPatch("{id}/cancelar")]
     public async Task<IActionResult> Cancelar(int id)
     {
@@ -114,9 +99,6 @@ public class ReservasController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Obtiene las reservas de un solicitante específico.
-    /// </summary>
     [HttpGet("solicitante/{solicitanteId}")]
     public async Task<ActionResult<IEnumerable<ReservaDTO>>> ObtenerPorSolicitante(int solicitanteId)
     {
@@ -124,9 +106,6 @@ public class ReservasController : ControllerBase
         return Ok(reservas);
     }
 
-    /// <summary>
-    /// Obtiene las reservas de un salón en una fecha específica.
-    /// </summary>
     [HttpGet("salon/{salonId}")]
     public async Task<ActionResult<IEnumerable<ReservaDTO>>> ObtenerPorSalonYFecha(int salonId, [FromQuery] DateTime fecha)
     {
@@ -134,10 +113,6 @@ public class ReservasController : ControllerBase
         return Ok(reservas);
     }
 
-    /// <summary>
-    /// Obtiene la disponibilidad de un salón en un rango de fechas.
-    /// Retorna bloques de tiempo disponibles y no disponibles.
-    /// </summary>
     [HttpGet("salon/{salonId}/disponibilidad")]
     public async Task<ActionResult<IEnumerable<DisponibilidadDTO>>> ObtenerDisponibilidad(
         int salonId,
@@ -155,10 +130,6 @@ public class ReservasController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Valida si un salón y recursos están disponibles sin crear una reserva.
-    /// Útil para verificar disponibilidad antes de crear una reserva.
-    /// </summary>
     [HttpPost("validar-disponibilidad")]
     public async Task<ActionResult<object>> ValidarDisponibilidad(
         [FromQuery] int salonId,

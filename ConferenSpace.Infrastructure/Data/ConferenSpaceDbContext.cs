@@ -3,9 +3,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ConferenSpace.Infrastructure.Data;
 
-/// <summary>
-/// Contexto de base de datos de Entity Framework Core para ConferenSpace.
-/// </summary>
 public class ConferenSpaceDbContext : DbContext
 {
     public ConferenSpaceDbContext(DbContextOptions<ConferenSpaceDbContext> options) : base(options)
@@ -22,7 +19,6 @@ public class ConferenSpaceDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // Configuración de Salon
         modelBuilder.Entity<Salon>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -39,7 +35,6 @@ public class ConferenSpaceDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
-        // Configuración de Solicitante
         modelBuilder.Entity<Solicitante>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -60,7 +55,6 @@ public class ConferenSpaceDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
-        // Configuración de Recurso
         modelBuilder.Entity<Recurso>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -78,7 +72,6 @@ public class ConferenSpaceDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
-        // Configuración de Reserva
         modelBuilder.Entity<Reserva>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -98,13 +91,11 @@ public class ConferenSpaceDbContext : DbContext
                 .HasForeignKey(rr => rr.ReservaId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Índices para mejorar rendimiento
             entity.HasIndex(e => new { e.SalonId, e.Fecha });
             entity.HasIndex(e => e.SolicitanteId);
             entity.HasIndex(e => e.Estado);
         });
 
-        // Configuración de ReservaRecurso
         modelBuilder.Entity<ReservaRecurso>(entity =>
         {
             entity.HasKey(e => e.Id);

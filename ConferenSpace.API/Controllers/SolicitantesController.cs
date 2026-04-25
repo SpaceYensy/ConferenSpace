@@ -17,9 +17,6 @@ public class SolicitantesController : ControllerBase
         _logger = logger;
     }
 
-    /// <summary>
-    /// Obtiene todos los solicitantes activos.
-    /// </summary>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<SolicitanteDTO>>> ObtenerTodos()
     {
@@ -27,9 +24,6 @@ public class SolicitantesController : ControllerBase
         return Ok(solicitantes);
     }
 
-    /// <summary>
-    /// Obtiene un solicitante específico por su ID.
-    /// </summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<SolicitanteDTO>> ObtenerPorId(int id)
     {
@@ -40,9 +34,6 @@ public class SolicitantesController : ControllerBase
         return Ok(solicitante);
     }
 
-    /// <summary>
-    /// Crea un nuevo solicitante.
-    /// </summary>
     [HttpPost]
     public async Task<ActionResult<SolicitanteDTO>> Crear([FromBody] SolicitanteDTO solicitanteDTO)
     {
@@ -58,9 +49,6 @@ public class SolicitantesController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Actualiza un solicitante existente.
-    /// </summary>
     [HttpPut("{id}")]
     public async Task<ActionResult<SolicitanteDTO>> Actualizar(int id, [FromBody] SolicitanteDTO solicitanteDTO)
     {
@@ -80,9 +68,6 @@ public class SolicitantesController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Busca solicitantes por nombre.
-    /// </summary>
     [HttpGet("buscar/nombre/{nombre}")]
     public async Task<ActionResult<IEnumerable<SolicitanteDTO>>> BuscarPorNombre(string nombre)
     {
@@ -90,9 +75,6 @@ public class SolicitantesController : ControllerBase
         return Ok(solicitantes);
     }
 
-    /// <summary>
-    /// Busca solicitantes por departamento.
-    /// </summary>
     [HttpGet("buscar/departamento/{departamento}")]
     public async Task<ActionResult<IEnumerable<SolicitanteDTO>>> BuscarPorDepartamento(string departamento)
     {
@@ -100,9 +82,6 @@ public class SolicitantesController : ControllerBase
         return Ok(solicitantes);
     }
 
-    /// <summary>
-    /// Busca un solicitante por correo electrónico.
-    /// </summary>
     [HttpGet("buscar/correo")]
     public async Task<ActionResult<SolicitanteDTO>> BuscarPorCorreo([FromQuery] string correo)
     {
@@ -113,9 +92,6 @@ public class SolicitantesController : ControllerBase
         return Ok(solicitante);
     }
 
-    /// <summary>
-    /// Desactiva un solicitante (solo si no tiene reservas activas).
-    /// </summary>
     [HttpPatch("{id}/desactivar")]
     public async Task<IActionResult> Desactivar(int id)
     {
@@ -134,9 +110,6 @@ public class SolicitantesController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Elimina un solicitante del sistema (solo si no tiene reservas).
-    /// </summary>
     [HttpDelete("{id}")]
     public async Task<IActionResult> Eliminar(int id)
     {

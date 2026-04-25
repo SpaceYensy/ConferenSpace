@@ -5,9 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ConferenSpace.Infrastructure.Repositories;
 
-/// <summary>
-/// Repositorio para la entidad Salon.
-/// </summary>
 public class SalonRepository : ISalonRepository
 {
     private readonly ConferenSpaceDbContext _context;
