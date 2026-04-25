@@ -1,0 +1,277 @@
+﻿@page "/reservas/crear"
+
+<PageTitle>Nueva Reserva - ConferenSpace</PageTitle>
+
+<div class="mb-4">
+    <a href="/reservas" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Volver a Reservas
+    </a>
+</div>
+
+<h2><i class="bi bi-calendar-plus text-info"></i> Nueva Reserva</h2>
+<hr />
+
+@if (mensajeError != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle"></i> @mensajeError
+        <button type="button" class="btn-close" @onclick="() => mensajeError = null"></button>
+    </div>
+}
+
+@if (mensajeExito != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle"></i> @mensajeExito
+        <button type="button" class="btn-close" @onclick="() => mensajeExito = null"></button>
+    </div>
+}
+
+<EditForm Model="@formModel" OnValidSubmit="@CrearReserva">
+    <DataAnnotationsValidator />
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Detalles de la Reserva</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Solicitante <span class="text-danger">*</span></label>
+                        <select class="form-select" @bind="formModel.SolicitanteId" required>
+                            <option value="0">Seleccione un solicitante...</option>
+                            @foreach (var s in solicitantes)
+                            {
+                                <option value="@s.Id">@s.NombreCompleto - @s.Departamento</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha <span class="text-danger">*</span></label>
+                        <InputDate @bind-Value="formModel.Fecha" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Hora Inicio <span class="text-danger">*</span></label>
+                            <InputDate Type="InputDateType.Time" @bind-Value="horaInicioDate" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Hora Fin <span class="text-danger">*</span></label>
+                            <InputDate Type="InputDateType.Time" @bind-Value="horaFinDate" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Cantidad de Asistentes <span class="text-danger">*</span></label>
+                        <InputNumber @bind-Value="formModel.CantidadAsistentes" class="form-control" min="1" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Propósito <span class="text-danger">*</span></label>
+                        <InputText @bind-Value="formModel.Proposito" class="form-control" placeholder="Ej: Reunión de presupuesto trimestral" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notas</label>
+                        <InputTextArea @bind-Value="formModel.Notas" class="form-control" rows="2" placeholder="Notas adicionales..." />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Seleccionar Salón</h5>
+                </div>
+                <div class="card-body">
+                    @if (!salones.Any())
+                    {
+                        <p class="text-muted">No hay salones disponibles.</p>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            @foreach (var salon in salones)
+                            {
+                                var seleccionado = formModel.SalonId == salon.Id;
+                                <div class="col-12 mb-2">
+                                    <div class="card cursor-pointer @(seleccionado ? "border-primary bg-light" : "")" @onclick="() => SeleccionarSalon(salon.Id)">
+                                        <div class="card-body py-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" checked="@seleccionado" />
+                                                <label class="form-check-label">
+                                                    <strong>@salon.Nombre</strong> - Cap: @salon.CapacidadMaxima
+                                                    <br /><small class="text-muted">@salon.Ubicacion</small>
+                                                    @if (!string.IsNullOrEmpty(salon.ServiciosIntegrados))
+                                                    {
+                                                        <br />
+                                                    
+                                                        <small><i class="bi bi-tools"></i> @salon.ServiciosIntegrados</small>
+                                                    }
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="mb-0">Recursos Adicionales</h5>
+                </div>
+                <div class="card-body">
+                    @if (!recursos.Any())
+                    {
+                        <p class="text-muted">No hay recursos disponibles.</p>
+                    }
+                    else
+                    {
+                        @foreach (var recurso in recursos)
+                        {
+                            var item = formModel.Recursos.FirstOrDefault(x => x.RecursoId == recurso.Id);
+                            var incluido = item != null;
+                            <div class="d-flex align-items-center justify-content-between mb-2 p-2 border rounded">
+                                <div>
+                                    <strong>@recurso.Nombre</strong><br />
+                                    <small class="text-muted">Disponibles: @recurso.CantidadDisponible</small>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    @if (incluido)
+                                    {
+                                        <input type="number" class="form-control form-control-sm" style="width: 70px;"
+                                               min="1" max="@recurso.CantidadDisponible"
+                                               value="@item!.CantidadSolicitada"
+                                               @onchange="(e) => ActualizarCantidadRecurso(recurso.Id, int.Parse((string)e.Value!))" />
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => QuitarRecurso(recurso.Id)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-outline-warning" @onclick="() => AgregarRecurso(recurso.Id)">
+                                            <i class="bi bi-plus"></i> Agregar
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4 mb-5">
+        <button type="submit" class="btn btn-info text-white btn-lg px-5" disabled="@enviando">
+            @if (enviando)
+            {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                <text>Creando...</text>
+            }
+            else
+            {
+                <i class="bi bi-calendar-check"></i>
+                <text>Crear Reserva</text>
+            }
+        </button>
+        <a href="/reservas" class="btn btn-secondary btn-lg ms-2">Cancelar</a>
+    </div>
+</EditForm>
+
+@code {
+    private ReservaCrearDTO formModel = new() { Fecha = DateTime.Today };
+    private List<Salon> salones = new();
+    private List<Solicitante> solicitantes = new();
+    private List<Recurso> recursos = new();
+    private string? mensajeError;
+    private string? mensajeExito;
+    private bool enviando;
+    private DateTime horaInicioDate = DateTime.Today.AddHours(9);
+    private DateTime horaFinDate = DateTime.Today.AddHours(10);
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            salones = await Api.GetSalonesAsync();
+            solicitantes = await Api.GetSolicitantesAsync();
+            recursos = await Api.GetRecursosAsync();
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"Error al cargar datos: {ex.Message}";
+        }
+    }
+
+    private void SeleccionarSalon(int id) => formModel.SalonId = id;
+
+    private void AgregarRecurso(int id)
+    {
+        if (!formModel.Recursos.Any(x => x.RecursoId == id))
+        {
+            formModel.Recursos.Add(new ReservaRecursoCrearDTO { RecursoId = id, CantidadSolicitada = 1 });
+        }
+    }
+
+    private void QuitarRecurso(int id)
+    {
+        formModel.Recursos.RemoveAll(x => x.RecursoId == id);
+    }
+
+    private void ActualizarCantidadRecurso(int id, int cantidad)
+    {
+        var item = formModel.Recursos.FirstOrDefault(x => x.RecursoId == id);
+        if (item != null) item.CantidadSolicitada = cantidad;
+    }
+
+    private async Task CrearReserva()
+    {
+        if (formModel.SolicitanteId == 0)
+        {
+            mensajeError = "Seleccione un solicitante.";
+            return;
+        }
+        if (formModel.SalonId == 0)
+        {
+            mensajeError = "Seleccione un salón.";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(formModel.Proposito))
+        {
+            mensajeError = "Ingrese el propósito de la reserva.";
+            return;
+        }
+
+        formModel.HoraInicio = horaInicioDate.TimeOfDay;
+        formModel.HoraFin = horaFinDate.TimeOfDay;
+
+        if (formModel.HoraFin <= formModel.HoraInicio)
+        {
+            mensajeError = "La hora de fin debe ser posterior a la hora de inicio.";
+            return;
+        }
+
+        enviando = true;
+        mensajeError = null;
+
+        try
+        {
+            await Api.CreateReservaAsync(formModel);
+            mensajeExito = "¡Reserva creada exitosamente!";
+            formModel = new ReservaCrearDTO { Fecha = DateTime.Today };
+            horaInicioDate = DateTime.Today.AddHours(9);
+            horaFinDate = DateTime.Today.AddHours(10);
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"Error al crear la reserva: {ex.Message}";
+        }
+        finally
+        {
+            enviando = false;
+        }
+    }
+}
