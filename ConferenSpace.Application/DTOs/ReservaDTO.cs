@@ -2,9 +2,6 @@ using ConferenSpace.Domain.Entities;
 
 namespace ConferenSpace.Application.DTOs;
 
-/// <summary>
-/// Data Transfer Object para la entidad Reserva (lectura/respuesta).
-/// </summary>
 public class ReservaDTO
 {
     public int Id { get; set; }

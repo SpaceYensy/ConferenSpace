@@ -6,9 +6,6 @@ using ConferenSpace.Infrastructure.Contracts;
 
 namespace ConferenSpace.Application.Services;
 
-/// <summary>
-/// Servicio de lógica de negocios para la gestión de solicitantes.
-/// </summary>
 public class SolicitanteService : ISolicitanteService
 {
     private readonly ISolicitanteRepository _solicitanteRepository;

@@ -6,9 +6,6 @@ using ConferenSpace.Infrastructure.Contracts;
 
 namespace ConferenSpace.Application.Services;
 
-/// <summary>
-/// Servicio de lógica de negocios para la gestión de salones.
-/// </summary>
 public class SalonService : ISalonService
 {
     private readonly ISalonRepository _salonRepository;

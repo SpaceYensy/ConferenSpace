@@ -17,9 +17,6 @@ public class SalonesController : ControllerBase
         _logger = logger;
     }
 
-    /// <summary>
-    /// Obtiene todos los salones disponibles.
-    /// </summary>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<SalonDTO>>> ObtenerTodos()
     {
@@ -27,9 +24,6 @@ public class SalonesController : ControllerBase
         return Ok(salones);
     }
 
-    /// <summary>
-    /// Obtiene un salón específico por su ID.
-    /// </summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<SalonDTO>> ObtenerPorId(int id)
     {
@@ -40,9 +34,6 @@ public class SalonesController : ControllerBase
         return Ok(salon);
     }
 
-    /// <summary>
-    /// Crea un nuevo salón.
-    /// </summary>
     [HttpPost]
     public async Task<ActionResult<SalonDTO>> Crear([FromBody] SalonDTO salonDTO)
     {
@@ -58,9 +49,6 @@ public class SalonesController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Actualiza un salón existente.
-    /// </summary>
     [HttpPut("{id}")]
     public async Task<ActionResult<SalonDTO>> Actualizar(int id, [FromBody] SalonDTO salonDTO)
     {
@@ -80,9 +68,6 @@ public class SalonesController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Pone un salón fuera de servicio.
-    /// </summary>
     [HttpPatch("{id}/fuera-de-servicio")]
     public async Task<IActionResult> PonerFueraDeServicio(int id)
     {
@@ -97,9 +82,6 @@ public class SalonesController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Reactiva un salón que estaba fuera de servicio.
-    /// </summary>
     [HttpPatch("{id}/reactivar")]
     public async Task<IActionResult> Reactivar(int id)
     {
@@ -114,9 +96,6 @@ public class SalonesController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Obtiene salones disponibles para una fecha y rango horario específico.
-    /// </summary>
     [HttpGet("disponibles")]
     public async Task<ActionResult<IEnumerable<SalonDTO>>> ObtenerDisponibles(
         [FromQuery] DateTime fecha,
@@ -139,9 +118,6 @@ public class SalonesController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Elimina un salón del sistema.
-    /// </summary>
     [HttpDelete("{id}")]
     public async Task<IActionResult> Eliminar(int id)
     {

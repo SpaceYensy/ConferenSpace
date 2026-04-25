@@ -1,8 +1,5 @@
 namespace ConferenSpace.Application.DTOs;
 
-/// <summary>
-/// Data Transfer Object para la entidad Recurso.
-/// </summary>
 public class RecursoDTO
 {
     public int Id { get; set; }

@@ -17,9 +17,6 @@ public class RecursosController : ControllerBase
         _logger = logger;
     }
 
-    /// <summary>
-    /// Obtiene todos los recursos disponibles.
-    /// </summary>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<RecursoDTO>>> ObtenerTodos()
     {
@@ -27,9 +24,6 @@ public class RecursosController : ControllerBase
         return Ok(recursos);
     }
 
-    /// <summary>
-    /// Obtiene un recurso específico por su ID.
-    /// </summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<RecursoDTO>> ObtenerPorId(int id)
     {
@@ -40,9 +34,6 @@ public class RecursosController : ControllerBase
         return Ok(recurso);
     }
 
-    /// <summary>
-    /// Crea un nuevo recurso.
-    /// </summary>
     [HttpPost]
     public async Task<ActionResult<RecursoDTO>> Crear([FromBody] RecursoDTO recursoDTO)
     {
@@ -58,9 +49,6 @@ public class RecursosController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Actualiza un recurso existente.
-    /// </summary>
     [HttpPut("{id}")]
     public async Task<ActionResult<RecursoDTO>> Actualizar(int id, [FromBody] RecursoDTO recursoDTO)
     {
@@ -80,9 +68,6 @@ public class RecursosController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Obtiene la cantidad disponible de un recurso.
-    /// </summary>
     [HttpGet("{id}/disponibilidad")]
     public async Task<ActionResult<int>> ObtenerCantidadDisponible(int id)
     {
@@ -97,9 +82,6 @@ public class RecursosController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Obtiene recursos disponibles para un rango de tiempo específico.
-    /// </summary>
     [HttpGet("disponibles")]
     public async Task<ActionResult<IEnumerable<RecursoDTO>>> ObtenerDisponibles(
         [FromQuery] DateTime fecha,
@@ -122,9 +104,6 @@ public class RecursosController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Desactiva un recurso.
-    /// </summary>
     [HttpPatch("{id}/desactivar")]
     public async Task<IActionResult> Desactivar(int id)
     {
@@ -139,9 +118,6 @@ public class RecursosController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Reactiva un recurso que estaba desactivado.
-    /// </summary>
     [HttpPatch("{id}/reactivar")]
     public async Task<IActionResult> Reactivar(int id)
     {
@@ -156,9 +132,6 @@ public class RecursosController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Elimina un recurso del sistema.
-    /// </summary>
     [HttpDelete("{id}")]
     public async Task<IActionResult> Eliminar(int id)
     {

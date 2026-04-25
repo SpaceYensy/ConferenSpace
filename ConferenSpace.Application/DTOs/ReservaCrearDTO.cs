@@ -1,8 +1,5 @@
 namespace ConferenSpace.Application.DTOs;
 
-/// <summary>
-/// Data Transfer Object para crear una nueva reserva.
-/// </summary>
 public class ReservaCrearDTO
 {
     public int SolicitanteId { get; set; }
@@ -21,16 +18,9 @@ public class ReservaCrearDTO
 
     public string? Notas { get; set; }
 
-    /// <summary>
-    /// Lista de recursos requeridos con sus cantidades.
-    /// Formato: (RecursoId, CantidadSolicitada)
-    /// </summary>
     public List<ReservaRecursoCrearDTO> Recursos { get; set; } = new();
 }
 
-/// <summary>
-/// Data Transfer Object para especificar recursos en una reserva.
-/// </summary>
 public class ReservaRecursoCrearDTO
 {
     public int RecursoId { get; set; }

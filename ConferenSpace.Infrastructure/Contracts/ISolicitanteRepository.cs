@@ -2,9 +2,6 @@ using ConferenSpace.Domain.Entities;
 
 namespace ConferenSpace.Infrastructure.Contracts;
 
-/// <summary>
-/// Contrato del repositorio para la entidad Solicitante.
-/// </summary>
 public interface ISolicitanteRepository
 {
     Task<IEnumerable<Solicitante>> ObtenerTodosAsync();

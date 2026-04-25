@@ -5,9 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ConferenSpace.Infrastructure.Repositories;
 
-/// <summary>
-/// Repositorio para la entidad Solicitante.
-/// </summary>
 public class SolicitanteRepository : ISolicitanteRepository
 {
     private readonly ConferenSpaceDbContext _context;
