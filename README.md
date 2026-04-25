@@ -1,10 +1,10 @@
 # ConferenSpace - Gestor de Reservas para Salón de Conferencias
 
-## 📋 Descripción
+## Descripción
 
 **ConferenSpace** es una aplicación diseñada para resolver el caos logístico que surge al gestionar múltiples espacios de reunión en entornos corporativos, educativos o de coworking. Su objetivo es centralizar el proceso de apartar salones de conferencias, eliminando los conflictos de doble reserva y optimizando el uso de cada espacio disponible.
 
-## 🏗️ Arquitectura
+## Arquitectura
 
 El proyecto está estructurado en 5 capas siguiendo los principios de Clean Architecture:
 
@@ -48,7 +48,7 @@ Controladores REST para cada entidad:
 #### 5. **UI** - Interfaz de Usuario
 Interfaz Blazor para interacción del usuario (a desarrollar).
 
-## 🎯 Características Principales
+## Características Principales
 
 ### 1. **Gestión de Solicitantes**
 - Crear, editar y eliminar solicitantes
@@ -74,15 +74,15 @@ Interfaz Blazor para interacción del usuario (a desarrollar).
 - Verificar disponibilidad de recursos solicitados
 - Control de inventario en tiempo real
 
-## 🔧 Requisitos Técnicos
+## Requisitos Técnicos
 
 - **.NET 10**
 - **SQL Server** (LocalDB o Superior)
 - **Entity Framework Core** 10.0.5
 - **AutoMapper** 13.0.1
-- **Swagger/OpenAPI**
+- **OpenAPI**
 
-## 📦 Instalación y Configuración
+## Instalación y Configuración
 
 ### 1. Clonar o descargar el proyecto
 
@@ -123,9 +123,7 @@ dotnet ef database update
 dotnet run
 ```
 
-La API estará disponible en: `https://localhost:7123`
-
-## 🚀 Endpoints de la API
+## Endpoints de la API
 
 ### Salones
 ```
@@ -243,143 +241,3 @@ POST   /api/reservas/validar-disponibilidad
   "fechaCreacion": "2024-01-15T10:30:00Z"
 }
 ```
-
-## 🔒 Validaciones Implementadas
-
-1. **Validación de Disponibilidad del Salón**
-   - No permite reservar si hay conflicto de horarios
-   - Valida la capacidad máxima vs asistentes
-
-2. **Validación de Recursos**
-   - Verifica disponibilidad de cantidad requerida
-   - Considera reservas en el mismo horario
-
-3. **Validaciones de Entidades**
-   - No permite eliminar solicitantes con reservas
-   - No permite eliminar salones con reservas
-   - No permite desactivar solicitantes con reservas activas
-
-4. **Integridad Referencial**
-   - Las relaciones se mantienen automáticamente
-   - Cascada de eliminación en ReservaRecurso
-
-## 🗄️ Base de Datos
-
-### Tablas principales:
-- `Salones` - Espacios de conferencias
-- `Solicitantes` - Personas que reservan
-- `Recursos` - Elementos adicionales disponibles
-- `Reservas` - Reservaciones realizadas
-- `ReservaRecursos` - Relación muchos-a-muchos
-
-### Índices para optimización:
-- Índice en `(SalonId, Fecha)` de Reservas
-- Índice en `SolicitanteId` de Reservas
-- Índice en `Estado` de Reservas
-- Índice único en `(ReservaId, RecursoId)` de ReservaRecursos
-
-## 📝 Ejemplos de Uso
-
-### Crear una Reserva
-```http
-POST /api/reservas
-Content-Type: application/json
-
-{
-  "solicitanteId": 1,
-  "salonId": 1,
-  "fecha": "2024-02-20",
-  "horaInicio": "14:00:00",
-  "horaFin": "16:00:00",
-  "proposito": "Reunión de junta",
-  "cantidadAsistentes": 25,
-  "notas": "Confirmar catering",
-  "recursos": [
-    {
-      "recursoId": 1,
-      "cantidadSolicitada": 2
-    }
-  ]
-}
-```
-
-### Obtener Disponibilidad
-```http
-GET /api/salones/disponibles?fecha=2024-02-20&horaInicio=14:00:00&horaFin=16:00:00&capacidadMinima=20
-```
-
-### Obtener Calendario de Salón
-```http
-GET /api/reservas/salon/1/disponibilidad?fechaInicio=2024-02-01&fechaFin=2024-02-29
-```
-
-## 🧪 Testing
-
-Para ejecutar pruebas unitarias (cuando se implementen):
-
-```bash
-dotnet test
-```
-
-## 📚 Documentación
-
-La API incluye Swagger/OpenAPI. Acceda a:
-
-```
-https://localhost:7123/swagger
-```
-
-## 🔐 Seguridad
-
-Recomendaciones para producción:
-- Implementar autenticación JWT
-- Agregar autorización basada en roles
-- Validar HTTPS
-- Implementar rate limiting
-- Agregar CORS si es necesario
-
-## 🐛 Resolución de Problemas
-
-### Error: "Database update failed"
-Verifique que SQL Server esté corriendo y la conexión sea correcta.
-
-### Error: "The LINQ expression could not be translated"
-Asegúrese de que las consultas LINQ sean traducibles a SQL.
-
-### Error de migraciones
-```bash
-dotnet ef migrations remove
-dotnet ef migrations add InitialCreate
-dotnet ef database update
-```
-
-## 📝 Notas de Desarrollo
-
-- El proyecto usa Entity Framework Core para acceso a datos
-- AutoMapper se usa para mapeo entre DTOs y entidades
-- Los servicios implementan la lógica de negocio
-- Los repositorios manejan el acceso a datos
-- Los controladores exponen los endpoints REST
-
-## 🤝 Contribución
-
-Para contribuir al proyecto:
-1. Fork el repositorio
-2. Crea una rama de feature (`git checkout -b feature/AmazingFeature`)
-3. Commit cambios (`git commit -m 'Add AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
-
-## 📄 Licencia
-
-Este proyecto está bajo licencia MIT.
-
-## ✉️ Contacto
-
-Para preguntas o sugerencias, contactar al equipo de desarrollo.
-
----
-
-**Versión**: 1.0.0  
-**Fecha de creación**: 2024  
-**Última actualización**: 2024
